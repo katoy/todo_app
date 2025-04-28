@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <link rel="shortcut icon" href="#">
+</head>
+<body>
+    <h1>Todo List</h1>
+    <ul>
+        {% for todo in todos %}
+            <li>{{ todo }}</li>
+        {% endfor %}
+    </ul>
+    <form method="post" action="/add">
+        <input type="text" name="todo">
+        <button type="submit">Add Todo</button>
+    </form>
+</body>
+</html>
