@@ -11,10 +11,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>{{ translations['title'] if translations and 'title' in translations else 'Todo List' }}</h1>
-    {% if error %}
-      <p style="color: red;">{{ translations['errorMessage'] if translations and 'errorMessage' in translations else error }}</p>
-    {% endif %}
+    <h1>{{ translations['title'] if translations and translations.get('title') else 'Todo List' }}</h1>
+    <p style="color: red;">{{ translations.get('errorMessage') if translations and error else error if error else '' }}</p>
     <ul id="todo-list">
         {% for todo in todos %}
             <li class="todo-item {{ 'completed' if todo.completed else 'pending' }}">
@@ -26,7 +24,7 @@
     <form method="post" action="/add">
         <input type="hidden" name="lang" value="{{ lang }}">
         <input type="text" name="todo">
-        <button type="submit">{{ translations['addTodo'] if translations and 'addTodo' in translations else 'Add Todo' }}</button>
+        <button type="submit">{{ translations['addTodo'] if translations and translations.get('addTodo') else 'Add Todo' }}</button>
     </form>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

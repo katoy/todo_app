@@ -27,10 +27,11 @@ def save_todos(todos):
 def index():
     todos = load_todos()
     lang = request.args.get('lang', 'en')
+    translations = {}
     try:
         translations = load_translations(lang)
     except FileNotFoundError:
-        translations = {}
+        pass
     return render_template('index.html', todos=todos, translations=translations, lang=lang)
 
 
@@ -46,25 +47,31 @@ def add_todo():
         except FileNotFoundError:
             translations = {}
         return render_template('index.html', todos=todos, error=translations.get('errorMessage', "Please enter a task name"), translations=translations, lang=lang)
-    else:
-        todos.append({'task': todo, 'completed': False})
-        save_todos(todos)
-        return redirect(url_for('index', lang=lang))
+    todos.append({'task': todo, 'completed': False})
+    save_todos(todos)
+    return redirect(url_for('index', lang=lang))
 
 @app.route('/update/<string:task>/<string:completed>', methods=['POST'])
 def update_todo(task, completed):
     todos = load_todos()
+    found = False
     for todo in todos:
         if todo['task'] == task:
             todo['completed'] = completed == 'true'
+            found = True
             break
     save_todos(todos)
+    if not found:
+        return 'Task not found', 404
     return 'OK'
 
 @app.route('/delete/<int:index>')
 def delete_todo(index):
     todos = load_todos()
-    del todos[index]
+    try:
+        del todos[index]
+    except IndexError:
+        return "Invalid index", 400
     save_todos(todos)
     return redirect(url_for('index'))
 
