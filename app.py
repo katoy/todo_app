@@ -24,6 +24,8 @@ def index():
 def add_todo():
     todos = load_todos()
     todo = request.form['todo']
+    if todo.strip() == "":
+        return render_template('index.html', todos=todos, error="Please enter a task name")
     todos.append({'task': todo, 'completed': False})
     save_todos(todos)
     return redirect(url_for('index'))

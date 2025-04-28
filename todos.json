@@ -1,10 +1,10 @@
 [
     {
-        "task": "xxx",
+        "task": "",
         "completed": false
     },
     {
-        "task": "",
-        "completed": false
+        "task": "XXXX",
+        "completed": true
     }
 ]

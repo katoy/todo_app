@@ -21,6 +21,9 @@
 </head>
 <body>
     <h1>Todo List</h1>
+    {% if error %}
+      <p style="color: red;">{{ error }}</p>
+    {% endif %}
     <ul id="todo-list">
         {% for todo in todos %}
             <li class="todo-item {{ 'completed' if todo.completed else 'pending' }}">
