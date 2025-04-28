@@ -1,0 +1,13 @@
+.todo-item {
+    display: flex;
+    align-items: center;
+}
+.todo-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+.todo-item.completed {
+    color: blue;
+}
+.todo-item.pending {
+    color: red;
+}

@@ -8,21 +8,7 @@
         <option value="ja" {% if lang == 'ja' %}selected{% endif %}>日本語</option>
         <option value="zh" {% if lang == 'zh' %}selected{% endif %}>中文</option>
     </select>
-    <style>
-        .todo-item {
-            display: flex;
-            align-items: center;
-        }
-        .todo-item input[type="checkbox"] {
-            margin-right: 10px;
-        }
-        .todo-item.completed {
-            color: blue;
-        }
-        .todo-item.pending {
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>{{ translations['title'] if translations and 'title' in translations else 'Todo List' }}</h1>
@@ -42,12 +28,6 @@
         <input type="text" name="todo">
         <button type="submit">{{ translations['addTodo'] if translations and 'addTodo' in translations else 'Add Todo' }}</button>
     </form>
-    <script>
-        const languageSelect = document.getElementById('language-select');
-        languageSelect.addEventListener('change', function() {
-            const lang = this.value;
-            window.location.href = '/?lang=' + lang;
-        });
-    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

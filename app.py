@@ -46,9 +46,10 @@ def add_todo():
         except FileNotFoundError:
             translations = {}
         return render_template('index.html', todos=todos, error=translations.get('errorMessage', "Please enter a task name"), translations=translations, lang=lang)
-    todos.append({'task': todo, 'completed': False})
-    save_todos(todos)
-    return redirect(url_for('index', lang=lang))
+    else:
+        todos.append({'task': todo, 'completed': False})
+        save_todos(todos)
+        return redirect(url_for('index', lang=lang))
 
 @app.route('/update/<string:task>/<string:completed>', methods=['POST'])
 def update_todo(task, completed):
