@@ -28,12 +28,15 @@ def add_todo():
     save_todos(todos)
     return redirect(url_for('index'))
 
-@app.route('/complete/<int:index>')
-def complete_todo(index):
+@app.route('/update/<string:task>/<string:completed>', methods=['POST'])
+def update_todo(task, completed):
     todos = load_todos()
-    todos[index]['completed'] = True
+    for todo in todos:
+        if todo['task'] == task:
+            todo['completed'] = completed == 'true'
+            break
     save_todos(todos)
-    return redirect(url_for('index'))
+    return 'OK'
 
 @app.route('/delete/<int:index>')
 def delete_todo(index):

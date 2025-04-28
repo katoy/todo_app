@@ -2,5 +2,9 @@
     {
         "task": "xxx",
         "completed": false
+    },
+    {
+        "task": "",
+        "completed": false
     }
 ]

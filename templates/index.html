@@ -3,17 +3,62 @@
 <head>
     <title>Todo App</title>
     <link rel="shortcut icon" href="#">
+    <style>
+        .todo-item {
+            display: flex;
+            align-items: center;
+        }
+        .todo-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .todo-item.completed {
+            color: blue;
+        }
+        .todo-item.pending {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Todo List</h1>
-    <ul>
+    <ul id="todo-list">
         {% for todo in todos %}
-            <li>{{ todo }}</li>
+            <li class="todo-item {{ 'completed' if todo.completed else 'pending' }}">
+                <input type="checkbox" data-task="{{ todo.task }}" {{ 'checked' if todo.completed else '' }}>
+                <span class="task-name">{{ todo.task }}</span>
+            </li>
         {% endfor %}
     </ul>
     <form method="post" action="/add">
         <input type="text" name="todo">
         <button type="submit">Add Todo</button>
     </form>
+    <script>
+        const todoList = document.getElementById('todo-list');
+        todoList.addEventListener('click', function(event) {
+            const target = event.target;
+            if (target.tagName === 'INPUT' && target.type === 'checkbox') {
+                const task = target.dataset.task;
+                const completed = target.checked;
+                fetch('/update/' + task + '/' + completed, {
+                    method: 'POST'
+                }).then(response => {
+                    if (response.ok) {
+                        const listItem = target.parentNode;
+                        if (completed) {
+                            listItem.classList.remove('pending');
+                            listItem.classList.add('completed');
+                        } else {
+                            listItem.classList.remove('completed');
+                            listItem.classList.add('pending');
+                        }
+                    }
+                });
+            } else if (target.classList.contains('task-name')) {
+                const checkbox = target.parentNode.querySelector('input[type="checkbox"]');
+                checkbox.click();
+            }
+        });
+    </script>
 </body>
 </html>
