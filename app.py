@@ -51,29 +51,33 @@ def add_todo():
     save_todos(todos)
     return redirect(url_for('index', lang=lang))
 
-@app.route('/update/<string:task>/<string:completed>', methods=['POST'])
-def update_todo(task, completed):
+@app.route('/update/<string:task>', methods=['POST'])
+def update_todo(task):
     todos = load_todos()
+    try:
+        completed = request.get_json()['completed']
+        print(f"Updating task: {task}, completed: {completed}")
+    except Exception as e:
+        print(f"Error getting completed value: {e}")
+        return 'Invalid request', 400
     found = False
     for todo in todos:
         if todo['task'] == task:
-            todo['completed'] = completed == 'true'
+            todo['completed'] = completed
             found = True
             break
     save_todos(todos)
     if not found:
+        print(f"Task {task} not found")
         return 'Task not found', 404
     return 'OK'
 
-@app.route('/delete/<int:index>')
-def delete_todo(index):
+@app.route('/delete/<string:task>')
+def delete_todo(task):
     todos = load_todos()
-    try:
-        del todos[index]
-    except IndexError:
-        return "Invalid index", 400
+    todos = [todo for todo in todos if todo['task'] != task]
     save_todos(todos)
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

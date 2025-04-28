@@ -2,12 +2,36 @@
     display: flex;
     align-items: center;
 }
+
 .todo-item input[type="checkbox"] {
     margin-right: 10px;
 }
-.todo-item.completed {
+
+#todo-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    table-layout: fixed;
+}
+
+#todo-table th {
+    background-color: #f2f2f2;
+}
+
+#todo-table th,
+#todo-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    width: 25%;
+}
+
+.completed  {
     color: blue;
 }
-.todo-item.pending {
+
+.pending  {
     color: red;
 }
