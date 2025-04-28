@@ -3,6 +3,11 @@
 <head>
     <title>Todo App</title>
     <link rel="shortcut icon" href="#">
+    <select id="language-select" name="lang">
+        <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+        <option value="ja" {% if lang == 'ja' %}selected{% endif %}>日本語</option>
+        <option value="zh" {% if lang == 'zh' %}selected{% endif %}>中文</option>
+    </select>
     <style>
         .todo-item {
             display: flex;
@@ -20,9 +25,9 @@
     </style>
 </head>
 <body>
-    <h1>Todo List</h1>
+    <h1>{{ translations['title'] if translations and 'title' in translations else 'Todo List' }}</h1>
     {% if error %}
-      <p style="color: red;">{{ error }}</p>
+      <p style="color: red;">{{ translations['errorMessage'] if translations and 'errorMessage' in translations else error }}</p>
     {% endif %}
     <ul id="todo-list">
         {% for todo in todos %}
@@ -33,34 +38,15 @@
         {% endfor %}
     </ul>
     <form method="post" action="/add">
+        <input type="hidden" name="lang" value="{{ lang }}">
         <input type="text" name="todo">
-        <button type="submit">Add Todo</button>
+        <button type="submit">{{ translations['addTodo'] if translations and 'addTodo' in translations else 'Add Todo' }}</button>
     </form>
     <script>
-        const todoList = document.getElementById('todo-list');
-        todoList.addEventListener('click', function(event) {
-            const target = event.target;
-            if (target.tagName === 'INPUT' && target.type === 'checkbox') {
-                const task = target.dataset.task;
-                const completed = target.checked;
-                fetch('/update/' + task + '/' + completed, {
-                    method: 'POST'
-                }).then(response => {
-                    if (response.ok) {
-                        const listItem = target.parentNode;
-                        if (completed) {
-                            listItem.classList.remove('pending');
-                            listItem.classList.add('completed');
-                        } else {
-                            listItem.classList.remove('completed');
-                            listItem.classList.add('pending');
-                        }
-                    }
-                });
-            } else if (target.classList.contains('task-name')) {
-                const checkbox = target.parentNode.querySelector('input[type="checkbox"]');
-                checkbox.click();
-            }
+        const languageSelect = document.getElementById('language-select');
+        languageSelect.addEventListener('change', function() {
+            const lang = this.value;
+            window.location.href = '/?lang=' + lang;
         });
     </script>
 </body>

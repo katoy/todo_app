@@ -11,6 +11,14 @@ def load_todos():
         todos = []
     return todos
 
+def load_translations(lang='en'):
+    try:
+        with open(f'translations/{lang}.json', 'r') as f:
+            translations = json.load(f)
+    except FileNotFoundError:
+        translations = {}
+    return translations
+
 def save_todos(todos):
     with open('todos.json', 'w') as f:
         json.dump(todos, f, indent=4)
@@ -18,17 +26,29 @@ def save_todos(todos):
 @app.route('/')
 def index():
     todos = load_todos()
-    return render_template('index.html', todos=todos)
+    lang = request.args.get('lang', 'en')
+    try:
+        translations = load_translations(lang)
+    except FileNotFoundError:
+        translations = {}
+    return render_template('index.html', todos=todos, translations=translations, lang=lang)
+
 
 @app.route('/add', methods=['POST'])
 def add_todo():
     todos = load_todos()
     todo = request.form['todo']
+    lang = request.form.get('lang', 'en')
+    print(f"lang: {lang}")
     if todo.strip() == "":
-        return render_template('index.html', todos=todos, error="Please enter a task name")
+        try:
+            translations = load_translations(lang)
+        except FileNotFoundError:
+            translations = {}
+        return render_template('index.html', todos=todos, error=translations.get('errorMessage', "Please enter a task name"), translations=translations, lang=lang)
     todos.append({'task': todo, 'completed': False})
     save_todos(todos)
-    return redirect(url_for('index'))
+    return redirect(url_for('index', lang=lang))
 
 @app.route('/update/<string:task>/<string:completed>', methods=['POST'])
 def update_todo(task, completed):
