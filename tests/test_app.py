@@ -109,6 +109,14 @@ class TestApp(unittest.TestCase):
             error_message = soup.find('p', {'style': 'color: red;'}).text
             self.assertEqual(error_message, '')
 
+    def test_placeholder_translation(self):
+        with self.app:
+            response = self.app.get('/?lang=en')
+            self.assertEqual(response.status_code, 200)
+            soup = BeautifulSoup(response.data, 'html.parser')
+            placeholder = soup.find('input', {'name': 'todo'})['placeholder']
+            self.assertEqual(placeholder, 'Enter todo')
+
     def test_index_translation_not_found_empty_dict(self):
         with self.app:
             response = self.app.get('/?lang=nonexistent')

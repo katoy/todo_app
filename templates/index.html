@@ -23,7 +23,7 @@
     </ul>
     <form method="post" action="/add">
         <input type="hidden" name="lang" value="{{ lang }}">
-        <input type="text" name="todo">
+        <input type="text" name="todo" placeholder="{{ translations['enterTodo'] if translations and translations.get('enterTodo') else 'Enter todo' }}">
         <button type="submit">{{ translations['addTodo'] if translations and translations.get('addTodo') else 'Add Todo' }}</button>
     </form>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

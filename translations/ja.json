@@ -1,5 +1,6 @@
 {
     "title": "Todoリスト",
     "addTodo": "Todoを追加",
-    "errorMessage": "タスク名を入力してください"
+    "errorMessage": "タスク名を入力してください",
+    "enterTodo": "Todoを入力"
 }

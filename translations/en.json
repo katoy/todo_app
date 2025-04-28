@@ -1,5 +1,6 @@
 {
     "title": "Todo List",
     "addTodo": "Add Todo",
-    "errorMessage": "Please enter a task name"
+    "errorMessage": "Please enter a task name",
+    "enterTodo": "Enter todo"
 }
