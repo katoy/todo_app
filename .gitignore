@@ -45,3 +45,6 @@ translations/*.json
 
 # todo data
 todos.json
+
+# Coverage data
+.coverage
