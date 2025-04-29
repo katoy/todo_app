@@ -53,6 +53,27 @@ pthon3 -m coverage report -m
     └── zh.json
 ```
 
+## Docker 環境での起動と終了
+
+### 起動方法
+
+1. docker-compose.yml ファイルがあるディレクトリに移動します。
+2. 次のコマンドを実行して、アプリを起動します。
+
+    ```bash
+    docker-compose up -d
+    ```
+3. ブラウザで `http://localhost:8000` にアクセスします。
+
+### 終了方法
+
+1. docker-compose.yml ファイルがあるディレクトリに移動します。
+2. 次のコマンドを実行して、アプリを終了します。
+
+    ```bash
+    docker-compose down
+    ```
+
 ## その他
 
 アプリケーション、テストコード、README、LICENSEファイルなどは、clineを利用して作成されました。
