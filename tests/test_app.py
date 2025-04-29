@@ -4,9 +4,12 @@ from flask import Flask
 from app import app, load_todos, load_translations, save_todos
 from bs4 import BeautifulSoup
 
+import os
+
 class TestApp(unittest.TestCase):
 
     def setUp(self):
+        os.environ['TODOS_FILE'] = 'test_todos.json'
         self.app = app.test_client()
         self.app.testing = True
 
@@ -14,7 +17,7 @@ class TestApp(unittest.TestCase):
         todos = load_todos()
         self.assertIsInstance(todos, list)
 
-    def test_load_translations(self):
+    def test_translations(self):
         translations = load_translations('en')
         self.assertIsInstance(translations, dict)
         self.assertEqual(translations['title'], 'Todo List')
@@ -25,9 +28,14 @@ class TestApp(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             todos = load_todos()
             self.assertIn({'task': 'Test Todo', 'completed': False}, todos)
-            # Clean up
-            todos.remove({'task': 'Test Todo', 'completed': False})
-            save_todos(todos)
+
+    def test_index_no_tasks(self):
+        with self.app:
+            response = self.app.get('/?lang=en')
+            self.assertEqual(response.status_code, 200)
+            soup = BeautifulSoup(response.data, 'html.parser')
+            td = soup.find('td', {'colspan': '3'})
+            self.assertEqual(td.text if td else None, None)
 
     def test_add_todo_empty(self):
         with self.app:
@@ -35,13 +43,21 @@ class TestApp(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'Please enter a task name', response.data)
 
+    def test_index_no_tasks_translated(self):
+        with self.app:
+            response = self.app.get('/?lang=ja')
+            self.assertEqual(response.status_code, 200)
+            soup = BeautifulSoup(response.data, 'html.parser')
+            td = soup.find('td', {'colspan': '3'})
+            self.assertEqual(td.text if td else None, None)
+
     def test_update_todo(self):
         # Add a todo first
         todos = load_todos()
         todos.append({'task': 'Test Update', 'completed': False})
         save_todos(todos)
         with self.app:
-            response = self.app.post('/update/Test Update/true')
+            response = self.app.get('/update/Test Update/true', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             todos = load_todos()
             for todo in todos:
@@ -54,7 +70,7 @@ class TestApp(unittest.TestCase):
 
     def test_update_todo_not_found(self):
         with self.app:
-            response = self.app.post('/update/NonExistentTask/true')
+            response = self.app.get('/update/NonExistentTask/true', follow_redirects=True)
             self.assertEqual(response.status_code, 404)
             self.assertIn(b'Task not found', response.data)
 

@@ -2,5 +2,6 @@
     "title": "待办事项列表",
     "addTodo": "添加待办事项",
     "errorMessage": "请输入任务名称",
-    "enterTodo": "输入待办事项"
+    "enterTodo": "输入待办事项",
+    "noTasks": "没有任务"
 }

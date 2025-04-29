@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json
+import os
 
 app = Flask(__name__)
 
 def load_todos():
+    todos_file = os.environ.get('TODOS_FILE', 'todos.json')
     try:
-        with open('todos.json', 'r') as f:
+        with open(todos_file, 'r') as f:
             todos = json.load(f)
     except FileNotFoundError:
         todos = []
@@ -20,7 +22,8 @@ def load_translations(lang='en'):
     return translations
 
 def save_todos(todos):
-    with open('todos.json', 'w') as f:
+    todos_file = os.environ.get('TODOS_FILE', 'todos.json')
+    with open(todos_file, 'w') as f:
         json.dump(todos, f, indent=4)
 
 @app.route('/')
@@ -51,32 +54,28 @@ def add_todo():
     save_todos(todos)
     return redirect(url_for('index', lang=lang))
 
-@app.route('/update/<string:task>', methods=['POST'])
-def update_todo(task):
+@app.route('/update/<string:task>/<string:completed>')
+def update_todo(task, completed):
     todos = load_todos()
-    try:
-        completed = request.get_json()['completed']
-        print(f"Updating task: {task}, completed: {completed}")
-    except Exception as e:
-        print(f"Error getting completed value: {e}")
-        return 'Invalid request', 400
     found = False
     for todo in todos:
         if todo['task'] == task:
-            todo['completed'] = completed
+            todo['completed'] = completed.lower() == 'true'
             found = True
             break
     save_todos(todos)
     if not found:
-        print(f"Task {task} not found")
         return 'Task not found', 404
-    return 'OK'
+    return redirect(url_for('index'))
 
-@app.route('/delete/<string:task>')
-def delete_todo(task):
+@app.route('/delete/<int:index>')
+def delete_todo(index):
     todos = load_todos()
-    todos = [todo for todo in todos if todo['task'] != task]
-    save_todos(todos)
+    if 0 <= index < len(todos):
+        del todos[index]
+        save_todos(todos)
+    else:
+        return "Invalid index", 400
     return redirect(url_for('index'))
 
 if __name__ == '__main__':

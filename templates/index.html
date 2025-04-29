@@ -27,13 +27,19 @@
             </tr>
         </thead>
         <tbody>
-            {% for todo in todos %}
+            {% if todos %}
+                {% for todo in todos %}
+                    <tr>
+                        <td><input type="checkbox" data-task="{{ todo.task }}" {{ 'checked' if todo.completed else '' }} onchange="updateTodoStatus('{{ todo.task }}', this.checked)"></td>
+                        <td><span class="task-name {{ 'completed' if todo.completed else 'pending' }}">{{ todo.task }}</span></td>
+                        <td><a href="/delete/{{ loop.index0 }}">削除</a></td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td><input type="checkbox" data-task="{{ todo.task }}" {{ 'checked' if todo.completed else '' }} onchange="updateTodoStatus('{{ todo.task }}', this.checked)"></td>
-                    <td><span class="task-name {{ 'completed' if todo.completed else 'pending' }}">{{ todo.task }}</span></td>
-                    <td><a href="/delete/{{ todo.task }}">削除</a></td>
+                    <td colspan="3">{{ translations['noTasks'] if translations and translations.get('noTasks') else 'No tasks' }}</td>
                 </tr>
-            {% endfor %}
+            {% endif %}
         </tbody>
     </table>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
