@@ -24,13 +24,13 @@ const todoTable = document.getElementById('todo-table');
 todoTable.addEventListener('change', function(event) {
     if (event.target.type === 'checkbox') {
         const task = event.target.dataset.task;
-        const listItem = event.target.parentNode.parentNode;
+        const taskNameSpan = event.target.parentNode.parentNode.querySelector('.task-name');
         if (event.target.checked) {
-            listItem.classList.add('completed');
-            listItem.classList.remove('pending');
+            taskNameSpan.classList.add('completed');
+            taskNameSpan.classList.remove('pending');
         } else {
-            listItem.classList.add('pending');
-            listItem.classList.remove('completed');
+            taskNameSpan.classList.add('pending');
+            taskNameSpan.classList.remove('completed');
         }
     }
 });
