@@ -22,14 +22,14 @@
 ## 起動方法
 
 ```bash
-python app.py
+python3 app.py
 ```
 
 ## テストの実行とカバレッジ計測方法
 
 ```bash
-coverage run -m pytest
-coverage report -m
+pthon3 -m coverage run -m pytest
+pthon3 -m coverage report -m
 ```
 
 ## ファイル構成
@@ -57,3 +57,9 @@ coverage report -m
 
 アプリケーション、テストコード、README、LICENSEファイルなどは、clineを利用して作成されました。
 スクリーンショットは手動で作成しました。
+
+##
+github colilot や cline の使い方は次を参考にしました。
+
+- https://www.youtube.com/watch?v=A6Dx8xXUcaA&t=1659s
+  AIエージェント・MCPサーバも解説！VSCodeでAIを使ってみよう！プログラミングをAIで効率化 〜初心者向け〜
