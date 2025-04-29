@@ -35,7 +35,7 @@ def load_translations(lang='en'):
 def save_todos(todos):
     todos_file = os.environ.get('TODOS_FILE', 'todos.json')
     with open(todos_file, 'w') as f:
-        json.dump(todos, f, indent=4)
+        json.dump(todos, f, indent=4, ensure_ascii=False)
 
 import uuid
 

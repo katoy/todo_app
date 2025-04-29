@@ -68,5 +68,38 @@ class TestApp(unittest.TestCase):
             todos = load_todos()
             self.assertFalse(any(d['task'] == self.test_task for d in todos))
 
+    def test_load_todos_file_not_found(self):
+        os.environ['TODOS_FILE'] = 'non_existent_todos.json'
+        todos = load_todos()
+        self.assertEqual(todos, [])
+        os.environ['TODOS_FILE'] = 'test_todos.json'
+
+    def test_load_todos_file_not_found_logging(self):
+        import logging
+        os.environ['TODOS_FILE'] = 'non_existent_todos.json'
+        with self.assertLogs(level='INFO') as cm:
+            load_todos()
+            self.assertEqual(cm.output, ["INFO:root:Todos file not found: non_existent_todos.json"])
+        os.environ['TODOS_FILE'] = 'test_todos.json'
+
+    def test_load_translations_file_not_found(self):
+        translations = load_translations('non_existent_lang')
+        self.assertEqual(translations, {})
+
+    def test_add_route_empty_todo(self):
+        response = self.app.post('/add', data=dict(todo="", lang=self.test_lang), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.data, 'html.parser')
+        error_message = soup.find('p', class_='error')
+        self.assertIsNone(error_message)
+
+    def test_update_route_not_found(self):
+        response = self.app.get('/update/non_existent_task/true', follow_redirects=True)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_route_invalid_id(self):
+        response = self.app.get('/delete/invalid_id', follow_redirects=True)
+        self.assertEqual(response.status_code, 404)
+
 if __name__ == '__main__':
     unittest.main()
