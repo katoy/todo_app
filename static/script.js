@@ -4,13 +4,9 @@ languageSelect.addEventListener('change', function() {
     window.location.href = '/?lang=' + lang;
 });
 
-function updateTodoStatus(task, completed) {
-  fetch('/update/' + task, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ completed })
+function updateTodoStatus(id, completed) {
+  fetch('/update/' + id + '/' + completed, {
+    method: 'GET',
   }).then(response => {
     if (!response.ok) {
       console.error('Failed to update todo status');
@@ -21,16 +17,21 @@ function updateTodoStatus(task, completed) {
 }
 
 const todoTable = document.getElementById('todo-table');
+
+function changeLanguage(lang) {
+    window.location.href = '/?lang=' + lang;
+}
+
 todoTable.addEventListener('change', function(event) {
     if (event.target.type === 'checkbox') {
-        const task = event.target.dataset.task;
-        const taskNameSpan = event.target.parentNode.parentNode.querySelector('.task-name');
+        const id = event.target.dataset.task;
+        const taskNameSpan = document.getElementById('task-name-' + id);
         if (event.target.checked) {
-            taskNameSpan.classList.add('completed');
             taskNameSpan.classList.remove('pending');
+            taskNameSpan.classList.add('completed');
         } else {
-            taskNameSpan.classList.add('pending');
             taskNameSpan.classList.remove('completed');
+            taskNameSpan.classList.add('pending');
         }
     }
 });

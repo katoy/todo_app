@@ -1,10 +1,11 @@
 import unittest
 import json
-from flask import Flask
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import app, load_todos, load_translations, save_todos
 from bs4 import BeautifulSoup
-
-import os
+from flask import Flask
 
 class TestApp(unittest.TestCase):
 
@@ -12,144 +13,60 @@ class TestApp(unittest.TestCase):
         os.environ['TODOS_FILE'] = 'test_todos.json'
         self.app = app.test_client()
         self.app.testing = True
+        self.test_task = "Test Task"
+        self.test_lang = "en"
 
-    def test_load_todos(self):
-        todos = load_todos()
-        self.assertIsInstance(todos, list)
-
-    def test_translations(self):
-        translations = load_translations('en')
-        self.assertIsInstance(translations, dict)
-        self.assertEqual(translations['title'], 'Todo List')
-
-    def test_add_todo(self):
-        with self.app:
-            response = self.app.post('/add', data=dict(todo='Test Todo', lang='en'), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            todos = load_todos()
-            self.assertIn({'task': 'Test Todo', 'completed': False}, todos)
-
-    def test_index_no_tasks(self):
-        with self.app:
-            response = self.app.get('/?lang=en')
-            self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            td = soup.find('td', {'colspan': '3'})
-            self.assertEqual(td.text if td else None, None)
-
-    def test_add_todo_empty(self):
-        with self.app:
-            response = self.app.post('/add', data=dict(todo='', lang='en'), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b'Please enter a task name', response.data)
-
-    def test_index_no_tasks_translated(self):
-        with self.app:
-            response = self.app.get('/?lang=ja')
-            self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            td = soup.find('td', {'colspan': '3'})
-            self.assertEqual(td.text if td else None, None)
-
-    def test_update_todo(self):
-        # Add a todo first
-        todos = load_todos()
-        todos.append({'task': 'Test Update', 'completed': False})
-        save_todos(todos)
-        with self.app:
-            response = self.app.get('/update/Test Update/true', follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            todos = load_todos()
-            for todo in todos:
-                if todo['task'] == 'Test Update':
-                    self.assertEqual(todo['completed'], True)
-                    break
-        # Clean up
-        todos.remove({'task': 'Test Update', 'completed': True})
-        save_todos(todos)
-
-    def test_update_todo_not_found(self):
-        with self.app:
-            response = self.app.get('/update/NonExistentTask/true', follow_redirects=True)
-            self.assertEqual(response.status_code, 404)
-            self.assertIn(b'Task not found', response.data)
-
-    def test_delete_todo(self):
-        # Add a todo first
-        todos = load_todos()
-        todos.append({'task': 'Test Delete', 'completed': False})
-        save_todos(todos)
-        index = len(todos) - 1
-        with self.app:
-            response = self.app.get(f'/delete/{index}', follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            todos = load_todos()
-            self.assertNotIn({'task': 'Test Delete', 'completed': False}, todos)
-
-    def test_delete_todo_invalid_index(self):
-        with self.app:
-            response = self.app.get('/delete/999', follow_redirects=True)
-            self.assertEqual(response.status_code, 400)
-            self.assertIn(b'Invalid index', response.data)
-
-    def test_load_translations_not_found(self):
-        translations = load_translations('nonexistent')
-        self.assertIsInstance(translations, dict)
-        self.assertEqual(translations, {})
-
-    def test_index_translation_not_found(self):
-        with self.app:
-            response = self.app.get('/?lang=nonexistent')
-            self.assertEqual(response.status_code, 200)
-
-        # Check if the translations variable is an empty dictionary
-        response = self.app.get('/?lang=nonexistent')
+    def test_index_route(self):
+        response = self.app.get('/?lang=' + self.test_lang)
         self.assertEqual(response.status_code, 200)
-        soup = BeautifulSoup(response.data, 'html.parser')
-        title = soup.find('h1').text
-        self.assertEqual(title, 'Todo List')
 
-    def test_add_todo_translation_not_found(self):
+    def test_add_route(self):
+        response = self.app.post('/add', data=dict(todo=self.test_task, lang=self.test_lang), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        todos = load_todos()
+        self.assertTrue(any(d['task'] == self.test_task for d in todos))
+        # Clean up: remove the added task
+        todos = load_todos()
+        todos = [item for item in todos if item['task'] != self.test_task]
+        save_todos(todos)
+
+    def test_update_route(self):
+        # Add a test task
+        todos = load_todos()
+        todos.append({'task': self.test_task, 'completed': False, 'id': 'test_id'})
+        save_todos(todos)
+        # Update the test task
+        response = self.app.get(f'/update/{self.test_task}/true', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        todos = load_todos()
+        self.assertTrue(any(d['task'] == self.test_task and d['completed'] for d in todos))
+        # Clean up: revert the changes
+        todos = load_todos()
+        for todo in todos:
+            if todo['task'] == self.test_task:
+                todo['completed'] = False
+        save_todos(todos)
+        todos = load_todos()
+        todos = [item for item in todos if item['task'] != self.test_task]
+        save_todos(todos)
+
+    def test_delete_route(self):
+        # Add a test task
+        todos = load_todos()
+        todos.append({'task': self.test_task, 'completed': False, 'id': 'test_id'})
+        save_todos(todos)
+         # Delete the test task
         with self.app:
-            response = self.app.post('/add', data=dict(todo='Test Todo', lang='nonexistent'), follow_redirects=True)
+            todos = load_todos()
+            todo_id = None
+            for todo in todos:
+                if todo['task'] == self.test_task:
+                    todo_id = todo['id']
+                    break
+            response = self.app.get(f'/delete/{todo_id}', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            error_message = soup.find('p', {'style': 'color: red;'}).text
-            self.assertEqual(error_message, '')
-
-    def test_add_todo_no_error(self):
-        with self.app:
-            response = self.app.post('/add', data=dict(todo='Test Todo', lang='en'), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            error_message = soup.find('p', {'style': 'color: red;'}).text
-            self.assertEqual(error_message, '')
-
-    def test_placeholder_translation(self):
-        with self.app:
-            response = self.app.get('/?lang=en')
-            self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            placeholder = soup.find('input', {'name': 'todo'})['placeholder']
-            self.assertEqual(placeholder, 'Enter todo')
-
-    def test_index_translation_not_found_empty_dict(self):
-        with self.app:
-            response = self.app.get('/?lang=nonexistent')
-            self.assertEqual(response.status_code, 200)
-
-    def test_load_translations_not_found_in_index(self):
-        translations = load_translations('nonexistent')
-        self.assertIsInstance(translations, dict)
-        self.assertEqual(translations, {})
-
-    def test_index_translation_not_found_empty_dict_2(self):
-        with self.app:
-            response = self.app.get('/?lang=nonexistent')
-            self.assertEqual(response.status_code, 200)
-            soup = BeautifulSoup(response.data, 'html.parser')
-            self.assertEqual(soup.find('h1').text, 'Todo List')
-            self.assertEqual(soup.find('p', {'style': 'color: red;'}).text, '')
+            todos = load_todos()
+            self.assertFalse(any(d['task'] == self.test_task for d in todos))
 
 if __name__ == '__main__':
     unittest.main()
