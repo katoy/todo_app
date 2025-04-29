@@ -65,7 +65,7 @@ def update_todo(id, completed):
     found = False
     for todo in todos:
         if todo['id'] == id:
-            todo['completed'] = completed == 'true'
+            todo['completed'] = completed == 'true' or completed == True
             found = True
             break
     save_todos(todos)
@@ -80,7 +80,8 @@ def delete_todo(id):
         if todo['id'] == id:
             del todos[i]
             save_todos(todos)
-            return redirect(url_for('index'))
+            lang = request.args.get('lang', 'en')
+            return redirect(url_for('index', lang=lang))
     return f"Invalid id: {id}", 404
 
 if __name__ == '__main__':

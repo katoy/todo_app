@@ -4,12 +4,26 @@ languageSelect.addEventListener('change', function() {
     window.location.href = '/?lang=' + lang;
 });
 
+function getLanguage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('lang') || 'en';
+}
+
 function updateTodoStatus(id, completed) {
-  fetch('/update/' + id + '/' + completed, {
+  fetch('/update/' + id + '/' + completed + '?lang=' + getLanguage(), {
     method: 'GET',
   }).then(response => {
     if (!response.ok) {
       console.error('Failed to update todo status');
+    } else {
+      const taskName = document.getElementById(`task-name-${id}`);
+      if (completed === true) {
+        taskName.classList.add('completed');
+        taskName.classList.remove('pending');
+      } else {
+        taskName.classList.add('pending');
+        taskName.classList.remove('completed');
+      }
     }
   }).catch(error => {
     console.error('Error:', error);

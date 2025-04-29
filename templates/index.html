@@ -32,7 +32,7 @@
                     <tr>
                         <td><input type="checkbox" data-task="{{ todo.id }}" {{ 'checked' if todo.completed else '' }} onchange="updateTodoStatus('{{ todo.id }}', this.checked)"></td>
                         <td><span id="task-name-{{ todo.id }}" class="task-name {{ 'completed' if todo.completed else 'pending' }}">{{ todo.task }}</span></td>
-                        <td><a href="/delete/{{ todo.id }}">削除</a></td>
+                        <td><a href="/delete/{{ todo.id }}?lang={{ lang }}">削除</a></td>
                     </tr>
                 {% endfor %}
             {% else %}
