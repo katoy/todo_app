@@ -59,18 +59,18 @@ def add_todo():
     save_todos(todos)
     return redirect(url_for('index', lang=lang))
 
-@app.route('/update/<string:task>/<string:completed>')
-def update_todo(task, completed):
+@app.route('/update/<string:id>/<string:completed>')
+def update_todo(id, completed):
     todos = load_todos()
     found = False
     for todo in todos:
-        if todo['task'] == task:
+        if todo['id'] == id:
             todo['completed'] = completed == 'true'
             found = True
             break
     save_todos(todos)
     if not found:
-        return f'Task \'{task}\' not found', 404
+        return f'Task \'{id}\' not found', 404
     return redirect(url_for('index'))
 
 @app.route('/delete/<string:id>')

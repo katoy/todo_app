@@ -25,13 +25,7 @@ function changeLanguage(lang) {
 todoTable.addEventListener('change', function(event) {
     if (event.target.type === 'checkbox') {
         const id = event.target.dataset.task;
-        const taskNameSpan = document.getElementById('task-name-' + id);
-        if (event.target.checked) {
-            taskNameSpan.classList.remove('pending');
-            taskNameSpan.classList.add('completed');
-        } else {
-            taskNameSpan.classList.remove('completed');
-            taskNameSpan.classList.add('pending');
-        }
+        const completed = event.target.checked;
+        updateTodoStatus(id, completed);
     }
 });

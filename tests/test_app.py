@@ -36,14 +36,20 @@ class TestApp(unittest.TestCase):
         todos.append({'task': self.test_task, 'completed': False, 'id': 'test_id'})
         save_todos(todos)
         # Update the test task
-        response = self.app.get(f'/update/{self.test_task}/true', follow_redirects=True)
+        todos = load_todos()
+        test_id = None
+        for todo in todos:
+            if todo['task'] == self.test_task:
+                test_id = todo['id']
+                break
+        response = self.app.get(f'/update/{test_id}/true', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         todos = load_todos()
-        self.assertTrue(any(d['task'] == self.test_task and d['completed'] for d in todos))
+        self.assertTrue(any(d['id'] == test_id and d['completed'] for d in todos))
         # Clean up: revert the changes
         todos = load_todos()
         for todo in todos:
-            if todo['task'] == self.test_task:
+            if todo['id'] == test_id:
                 todo['completed'] = False
         save_todos(todos)
         todos = load_todos()
@@ -94,7 +100,7 @@ class TestApp(unittest.TestCase):
         self.assertIsNone(error_message)
 
     def test_update_route_not_found(self):
-        response = self.app.get('/update/non_existent_task/true', follow_redirects=True)
+        response = self.app.get('/update/non_existent_id/true', follow_redirects=True)
         self.assertEqual(response.status_code, 404)
 
     def test_delete_route_invalid_id(self):
